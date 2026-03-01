@@ -34,7 +34,7 @@ const DataIngestion = ({ setIngestedData }: any) => {
     setError(null);
 
     try {
-      const res = await fetch("http://localhost:8000/upload-pdf", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload-pdf`, {
         method: "POST",
         body: formData,
       });

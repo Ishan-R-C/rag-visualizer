@@ -47,11 +47,14 @@ const VectorEmbedding: React.FC<VectorEmbeddingProps> = ({
     isLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/embed-3d-stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chunks: chunkData }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/embed-3d-stream`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chunks: chunkData }),
+        },
+      );
 
       if (!response.ok || !response.body) {
         setError("Something went wrong while generating embeddings.");
@@ -109,11 +112,14 @@ const VectorEmbedding: React.FC<VectorEmbeddingProps> = ({
     setQueryLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/embed-query", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: query.trim() }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/embed-query`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: query.trim() }),
+        },
+      );
       const data = await response.json();
       if (data.error) {
         setError(data.error);

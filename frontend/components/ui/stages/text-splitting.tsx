@@ -72,7 +72,7 @@ const TextSplitting: React.FC<TextSplittingProps> = ({
     setError(null);
     isLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/split-text", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/split-text`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

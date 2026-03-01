@@ -47,18 +47,21 @@ const ResponseGeneration: React.FC<ResponseGenerationProps> = ({
   const handleResponse = async () => {
     isLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/generate-response", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          temperature: temp,
-          top_k: topK,
-          top_p: topP,
-          max_tokens: maxTokens,
-          system_message: systemMessage,
-          query: query,
-        }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/generate-response`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            temperature: temp,
+            top_k: topK,
+            top_p: topP,
+            max_tokens: maxTokens,
+            system_message: systemMessage,
+            query: query,
+          }),
+        },
+      );
 
       const data = await res.json();
       setAnswer(data.answer);
