@@ -162,12 +162,12 @@ const VectorEmbedding: React.FC<VectorEmbeddingProps> = ({
       <p className="font-semibold italic text-gray-600 mb-3">
         Embedding model used here:{" "}
         <a
-          href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
+          href="https://ai.google.dev/gemini-api/docs/embeddings"
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600"
         >
-          all-MiniLM-L6-v2
+          gemini-embedding-001
         </a>
         .
       </p>

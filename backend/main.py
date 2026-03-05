@@ -6,9 +6,7 @@ import os
 from fastapi import Body
 import numpy as np
 import re
-from contextlib import asynccontextmanager
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
@@ -18,31 +16,11 @@ load_dotenv()
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-_model = None
-_model_ready = asyncio.Event()
-_executor = ThreadPoolExecutor(max_workers=4)
 _umap_reducer = None
 _chunk_embeddings = None  
 _chunks = None  
 
-def _load_model_sync():
-    from sentence_transformers import SentenceTransformer
-    return SentenceTransformer("all-MiniLM-L6-v2")
-
-async def _load_model_background():
-    global _model
-    loop = asyncio.get_event_loop()
-    _model = await loop.run_in_executor(_executor, _load_model_sync)
-    _model_ready.set()
-    print("Embedding model ready")
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    asyncio.create_task(_load_model_background())
-    yield
-    _executor.shutdown(wait=False)
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -51,6 +29,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+async def embed_texts(texts: list[str]) -> np.ndarray:
+    result = await client.aio.models.embed_content(
+        model="gemini-embedding-001",
+        contents=texts,
+    )
+    return np.array([e.values for e in result.embeddings])
 
 @app.post("/upload-pdf")
 async def upload_pdf(file: UploadFile = File(...)):
@@ -189,7 +174,6 @@ async def split_text(payload: dict = Body(...)):
 @app.post("/embed-3d-stream")
 async def embed_3d_stream(payload: dict = Body(...)):
     global _umap_reducer, _chunk_embeddings, _chunks
-    await asyncio.wait_for(_model_ready.wait(), timeout=30.0)
 
     chunks = payload["chunks"]
     loop = asyncio.get_event_loop()
@@ -199,9 +183,7 @@ async def embed_3d_stream(payload: dict = Body(...)):
 
         yield json.dumps({"progress": 10, "stage": "Starting encoding..."}) + "\n"
 
-        embeddings = await loop.run_in_executor(
-            _executor, lambda: _model.encode(chunks)
-        )
+        embeddings = await embed_texts(chunks)
         _chunk_embeddings = embeddings
         _chunks = chunks
 
@@ -213,7 +195,7 @@ async def embed_3d_stream(payload: dict = Body(...)):
             _umap_reducer = umap.UMAP(n_components=3, random_state=42)
             return _umap_reducer.fit_transform(embeddings)
 
-        umap_future = loop.run_in_executor(_executor, fit_and_transform)
+        umap_future = loop.run_in_executor(None, fit_and_transform)
 
         progress = 50
         while not umap_future.done():
@@ -234,17 +216,14 @@ async def embed_query(payload: dict = Body(...)):
     if _umap_reducer is None or _chunk_embeddings is None or _chunks is None:
         return {"error": "No embedding space found. Please generate chunk embeddings first."}
     
-    await asyncio.wait_for(_model_ready.wait(), timeout=30.0)
     query = payload["query"]
     loop = asyncio.get_event_loop()
 
     #Encode the query into high-dim embedding space
-    query_embedding = await loop.run_in_executor(
-        _executor, lambda: _model.encode([query])
-    )
+    query_embedding = await embed_texts([query])
 
     query_point = await loop.run_in_executor(
-        _executor, lambda: _umap_reducer.transform(query_embedding)
+        None, lambda: _umap_reducer.transform(query_embedding)
     )
 
     # Cosine similarity in original high-dim space
@@ -263,7 +242,7 @@ async def embed_query(payload: dict = Body(...)):
             for i in top5_indices
         ]
 
-    top5 = await loop.run_in_executor(_executor, find_top5)
+    top5 = await loop.run_in_executor(None, find_top5)
 
     return {
         "point": query_point[0].tolist(),
@@ -283,13 +262,10 @@ async def generate_response(payload: dict = Body(...)):
     if _umap_reducer is None or _chunk_embeddings is None or _chunks is None:
         return {"error": "No embedding space found. Please generate chunk embeddings first."}
     
-    await asyncio.wait_for(_model_ready.wait(), timeout=30.0)
     loop = asyncio.get_event_loop()
 
     #Encode the query into high-dim embedding space
-    query_embedding = await loop.run_in_executor(
-        _executor, lambda: _model.encode([query])
-    )
+    query_embedding = await embed_texts([query])
 
     def find_top5():
         q = query_embedding[0]
@@ -306,7 +282,7 @@ async def generate_response(payload: dict = Body(...)):
             for i in top5_indices
         ]
 
-    top5 = await loop.run_in_executor(_executor, find_top5)
+    top5 = await loop.run_in_executor(None, find_top5)
 
     context = "\n\n".join(item['chunk'] for item in top5)
 
