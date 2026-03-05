@@ -1,12 +1,10 @@
 fastapi
 uvicorn
+gunicorn
 pypdf
 numpy
+google-genai
 python-dotenv
 langchain-text-splitters
-langchain-core
 tiktoken
-sentence-transformers
 umap-learn
-google-genai
-python-multipart
