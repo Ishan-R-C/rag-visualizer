@@ -20,6 +20,7 @@ Perfect for students, researchers, and developers who want to grasp how modern L
 - **PDF Upload**: Drag-and-drop PDF files (up to 2MB)
 - **Text Extraction**: Automatic page-by-page processing with formatting preservation
 - **Real-time Preview**: See extracted text, page count, and character statistics instantly
+<img width="1920" height="1107" alt="Image" src="https://github.com/user-attachments/assets/aabc32cb-94f7-4edd-8ed4-714d1b70b8b0" />
 
 ### Text Splitting
 
@@ -29,6 +30,7 @@ Perfect for students, researchers, and developers who want to grasp how modern L
   - **Token-Based Splitting**: Precise token-aware chunking for LLM compatibility
 - **Interactive Controls**: Adjust chunk size, overlap, and see real-time statistics
 - **Overlap Analysis**: Visualize actual vs. configured overlap between chunks
+<img width="1920" height="1725" alt="Image" src="https://github.com/user-attachments/assets/477f0171-62dd-4b5d-a564-ead3a2e10844" />
 
 ### Vector Embeddings & 3D Visualization
 
@@ -37,6 +39,7 @@ Perfect for students, researchers, and developers who want to grasp how modern L
 - **Color-Coded Points**: Visual cues based on embedding dimensions
 - **Real-time Query Projection**: Watch your search queries appear in the embedding space
 - **Similarity Search**: See the topmost relevant chunks highlighted in 3D space
+<img width="1920" height="1556" alt="Image" src="https://github.com/user-attachments/assets/d8c963fd-c6f5-40fd-be92-e3a34ee2f229" />
 
 ### Response Generation
 
@@ -44,6 +47,7 @@ Perfect for students, researchers, and developers who want to grasp how modern L
 - **Configurable Parameters**: Adjust temperature, top-k, top-p, and max tokens
 - **Custom System Messages**: Define the AI's behavior and expertise
 - **Source Transparency**: Know exactly which chunks contributed to each answer
+<img width="1920" height="1505" alt="Image" src="https://github.com/user-attachments/assets/f0fedee0-2112-4118-b2a7-61dbdeb9b4df" />
 
 ## Architecture
 
